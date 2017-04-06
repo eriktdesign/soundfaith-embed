@@ -59,9 +59,6 @@ class SF_Embed {
 	 * Register embeds to their handlers
 	 */
 	public function add_providers() {
-		// wp_embed_register_handler( 'sf_sermon', $this->sermon_regex, array( $this, 'sermon_embed' ) );
-		// wp_embed_register_handler( 'sf_profile', $this->profile_regex, array( $this, 'playlist_embed' ) );
-
 		wp_embed_register_handler( 'sf_sermon', $this->sermon_regex, array( $this, 'sf_embed' ) );
 		wp_embed_register_handler( 'sf_profile', $this->profile_regex, array( $this, 'sf_embed' ) );
 	}
