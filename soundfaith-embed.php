@@ -4,18 +4,18 @@
  *
  * @link              http://eriktdesign.com
  * @since             1.0.0
- * @package           SF_Oembed
+ * @package           SF_Embed
  *
  * @wordpress-plugin
- * Plugin Name:       SoundFaith Oembed
+ * Plugin Name:       SoundFaith Embed
  * Plugin URI:        http://eriktdesign.com
- * Description:       Enables SoundFaith.com as an oembed provider
+ * Description:       Enables SoundFaith.com as an embed provider
  * Version:           1.0.0
  * Author:            Erik Teichmann
  * Author URI:        http://eriktdesign.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       sf-oembed
+ * Text Domain:       sf-embed
  * Domain Path:       /languages
  */
 
@@ -24,7 +24,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-class SF_Oembed {
+class SF_Embed {
 
 	// Plugin version
 	public $version = "0.1.0";
@@ -158,4 +158,4 @@ class SF_Oembed {
 
 }
 
-$SF_Oembed = new SF_Oembed();
+$SF_Embed = new SF_Embed();
