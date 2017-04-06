@@ -93,6 +93,14 @@ class SF_Embed {
 		);
 	}
 
+	/**
+	 * Generate the embed code for a SoundFaith sermon or profile
+	 * @param  array $matches Regex matches for URL
+	 * @param  array $attr    Attributes (for shortcode?)
+	 * @param  string $url     Original URL
+	 * @param  string $rawattr Raw attributes
+	 * @return string          HTML for iframe embed
+	 */
 	public function sf_embed( $matches, $attr, $url, $rawattr ) {
 		$type = $matches[1];
 		$id = $matches[2];
@@ -110,6 +118,12 @@ class SF_Embed {
 		return apply_filters( 'embed_sf', $embed, $matches, $attr, $url, $rawattr );
 	}
 
+	/**
+	 * Get the URL for the iframe src
+	 * @param  string $type Either sermon or profile
+	 * @param  string $id   ID of sermon or profile
+	 * @return string       URL for iframe src with query args added
+	 */
 	public function get_embed_url( $type, $id ) {
 		$url = trailingslashit( $this->embed_base . $type ) . $id;
 
