@@ -24,6 +24,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+if( ! class_exists( 'RationalOptionPages' ) ) {
+	require_once('inc/RationalOptionPages.php');
+}
+
 class SF_Embed {
 
 	// Plugin version
@@ -44,6 +48,15 @@ class SF_Embed {
 		'includeDatePresented' 	=> 'true',		
 	);
 
+	public $default_options = array( 
+		's_includeSermonDetails' => 'on',
+		'includeSermonDetails' => 'on',
+		'includeThumbnail' => '',
+		'includeSpeaker' => '',
+		'includeSeries' => '',
+		'includeDatePresented' => '',
+	);
+
 	public $sermon_regex = '/soundfaith\.com\/(sermons)\/(\d+)/i';
 	public $profile_regex = '/soundfaith\.com\/(profile)\/(.+)/i';
 
@@ -52,7 +65,11 @@ class SF_Embed {
 	 * In the future, options page functionality will be added here.
 	 */
 	public function __construct() {
+		// add_action( 'admin_init', array( $this, 'settings_init' ) );
+		// add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'init', array( $this, 'settings_init' ) );
 		$this->add_providers();
+		add_action( 'wp_footer', array( $this, 'debug' ) );
 	}
 
 	/**
@@ -91,6 +108,20 @@ class SF_Embed {
 			'width' => $width,
 			'height' => $height,
 		);
+	}
+
+	public function get_options( $type ) {
+		$options = get_option( 'soundfaith-embed-admin', array() );
+
+		$options = wp_parse_args( $options, $this->default_options );
+
+		if( $type == 'sermon' ) {
+			return array( 'includeSermonDetails' => 'true' );
+		} else {
+			unset( $options['s_includeSermonDetails' ] );
+		}
+
+		return $options;
 	}
 
 	/**
@@ -133,7 +164,76 @@ class SF_Embed {
 		} else {
 			return add_query_arg( $this->sermon_options, $url );
 		}
+	}
 
+	public function settings_init() {
+		$pages = array(
+			'soundfaith-embed-admin'	=> array(
+				'parent_slug' => 'options-general.php',
+				'page_title'	=> __( 'SoundFaith Options', 'sf-embed' ),
+				'sections'		=> array(
+					'sermon'	=> array(
+						'title'			=> __( 'Sermon Embeds', 'sf-embed' ),
+						'id'			=> 'sermon',
+						'text'			=> __( 'Settings for embedding individual sermons' ),
+						'fields'		=> array(
+							'details'		=> array(
+								'title'			=> __( 'Show sermon details', 'sf-embed' ),
+								'id'			=> 's_includeSermonDetails',
+								'type'			=> 'checkbox',
+								'checked'		=> true,
+								// 'text'			=> __( 'Show sermon details under embed', 'sf-embed' ),
+							),
+						),
+					),
+					'profile'	=> array(
+						'title'			=> __( 'Profile Embeds', 'sf-embed' ),
+						'id'			=> 'profile',
+						'text'			=> __( 'Settings for embedding profile pages/playlists' ),
+						'fields'		=> array(
+							'details'		=> array(
+								'title'			=> __( 'Show sermon details', 'sf-embed' ),
+								'type'			=> 'checkbox',
+								'checked'		=> true,
+								'id'			=> 'includeSermonDetails',
+								// 'text'			=> __( 'Show sermon details under embed', 'sf-embed' ),
+							),
+							'thumb'		=> array(
+								'title'			=> __( 'Show thumbnail in playlist', 'sf-embed' ),
+								'type'			=> 'checkbox',
+								'id'			=> 'includeThumbnail',
+								// 'text'			=> __( 'Display thumbnail for each sermon in playlist', 'sf-embed' ),
+							),
+							'speaker'		=> array(
+								'title'			=> __( 'Show speaker name in playlist', 'sf-embed' ),
+								'type'			=> 'checkbox',
+								'id'			=> 'includeSpeaker',
+								// 'text'			=> __( 'Show speaker name for each sermon in playlist', 'sf-embed' ),
+							),
+							'series'		=> array(
+								'title'			=> __( 'Show series title in playlist', 'sf-embed' ),
+								'type'			=> 'checkbox',
+								'id'			=> 'includeSeries',
+								// 'text'			=> __( 'Show series title for each sermon in playlist', 'sf-embed' ),
+							),
+							'date'		=> array(
+								'title'			=> __( 'Show sermon date in playlist', 'sf-embed' ),
+								'type'			=> 'checkbox',
+								'id'			=> 'includeDatePresented',
+								// 'text'			=> __( 'Show the date for each sermon in playlist', 'sf-embed' ),
+							),
+						),
+					),
+
+				),
+			),
+		);
+
+		$option_page = new RationalOptionPages( $pages );
+	}
+
+	public function debug() {
+		print_r( $this->get_options( 'profile' ) );
 	}
 
 }
