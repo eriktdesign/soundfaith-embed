@@ -8,7 +8,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       SoundFaith Embed
- * Plugin URI:        http://eriktdesign.com
+ * Plugin URI:        https://github.com/eriktdesign/soundfaith-embed/
  * Description:       Enables SoundFaith.com as an embed provider
  * Version:           1.0.0
  * Author:            Erik Teichmann
