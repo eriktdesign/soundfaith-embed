@@ -59,9 +59,9 @@ class SF_Embed_Admin {
 			);
 
 				add_settings_field(
-					'sermon_show_sermon_details_0', // id
+					'includeSermonDetails', // id
 					'Show sermon details', // title
-					array( $this, 'sermon_show_sermon_details_0_callback' ), // callback
+					array( $this, 'sermon_includeSermonDetails_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_sermon_setting_section' // section
 				);
@@ -80,39 +80,39 @@ class SF_Embed_Admin {
 			);
 
 				add_settings_field(
-					'show_sermon_details_0', // id
+					'includeSermonDetails', // id
 					'Show sermon details', // title
-					array( $this, 'show_sermon_details_0_callback' ), // callback
+					array( $this, 'includeSermonDetails_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_profile_setting_section' // section
 				);
 
 				add_settings_field(
-					'show_thumbnail_1', // id
+					'includeThumbnail', // id
 					'Show thumbnail in playlist', // title
-					array( $this, 'show_thumbnail_1_callback' ), // callback
+					array( $this, 'includeThumbnail_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_profile_setting_section' // section
 				);
 
 				add_settings_field(
-					'show_speaker_name_2', // id
+					'includeSpeaker', // id
 					'Show speaker name in playlist', // title
-					array( $this, 'show_speaker_name_2_callback' ), // callback
+					array( $this, 'includeSpeaker_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_profile_setting_section' // section
 				);	
 				add_settings_field(
-					'show_series_3', // id
-					'Show speaker name in playlist', // title
-					array( $this, 'show_series_3_callback' ), // callback
+					'includeSeries', // id
+					'Show series name in playlist', // title
+					array( $this, 'includeSeries_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_profile_setting_section' // section
 				);	
 				add_settings_field(
-					'show_date_4', // id
-					'Show speaker name in playlist', // title
-					array( $this, 'show_date_4_callback' ), // callback
+					'includeDatePresented', // id
+					'Show sermon date in playlist', // title
+					array( $this, 'includeDatePresented_callback' ), // callback
 					'soundfaith-embed-admin', // page
 					'soundfaith_embed_profile_setting_section' // section
 				);						
@@ -121,10 +121,10 @@ class SF_Embed_Admin {
 	public function soundfaith_embed_sermon_sanitize( $input ) {
 		$sanitary_values = array();
 
-		if ( isset( $input['sermon_show_sermon_details_0'] ) ) {
-			$sanitary_values['sermon_show_sermon_details_0'] = $input['sermon_show_sermon_details_0'];
+		if ( isset( $input['includeSermonDetails'] ) ) {
+			$sanitary_values['includeSermonDetails'] = $input['includeSermonDetails'];
 		} else {
-			$sanitary_values['sermon_show_sermon_details_0'] = 'false';
+			$sanitary_values['includeSermonDetails'] = 'false';
 		}		
 
 		return $sanitary_values;
@@ -133,43 +133,45 @@ class SF_Embed_Admin {
 	public function soundfaith_embed_profile_sanitize( $input ) {
 		$sanitary_values = array();
 
-		if ( isset( $input['show_sermon_details_0'] ) ) {
-			$sanitary_values['show_sermon_details_0'] = $input['show_sermon_details_0'];
+		$sanitary_values['includePlaylist'] = 'true';
+
+		if ( isset( $input['includeSermonDetails'] ) ) {
+			$sanitary_values['includeSermonDetails'] = $input['includeSermonDetails'];
 		} else {
-			$sanitary_values['show_sermon_details_0'] = 'false';
+			$sanitary_values['includeSermonDetails'] = 'false';
 		}
 
-		if ( isset( $input['show_thumbnail_1'] ) ) {
-			$sanitary_values['show_thumbnail_1'] = $input['show_thumbnail_1'];
+		if ( isset( $input['includeThumbnail'] ) ) {
+			$sanitary_values['includeThumbnail'] = $input['includeThumbnail'];
 		} else {
-			$sanitary_values['show_thumbnail_1'] = 'false';
+			$sanitary_values['includeThumbnail'] = 'false';
 		}
 
-		if ( isset( $input['show_speaker_name_2'] ) ) {
-			$sanitary_values['show_speaker_name_2'] = $input['show_speaker_name_2'];
+		if ( isset( $input['includeSpeaker'] ) ) {
+			$sanitary_values['includeSpeaker'] = $input['includeSpeaker'];
 		} else {
-			$sanitary_values['show_speaker_name_2'] = 'false';
+			$sanitary_values['includeSpeaker'] = 'false';
 		}
 
-		if ( isset( $input['show_series_3'] ) ) {
-			$sanitary_values['show_series_3'] = $input['show_series_3'];
+		if ( isset( $input['includeSeries'] ) ) {
+			$sanitary_values['includeSeries'] = $input['includeSeries'];
 		} else {
-			$sanitary_values['show_series_3'] = 'false';
+			$sanitary_values['includeSeries'] = 'false';
 		}
 
-		if ( isset( $input['show_date_4'] ) ) {
-			$sanitary_values['show_date_4'] = $input['show_date_4'];
+		if ( isset( $input['includeDatePresented'] ) ) {
+			$sanitary_values['includeDatePresented'] = $input['includeDatePresented'];
 		} else {
-			$sanitary_values['show_date_4'] = 'false';
+			$sanitary_values['includeDatePresented'] = 'false';
 		}
 
 		return $sanitary_values;
 	}
 
-	public function sermon_show_sermon_details_0_callback() {
+	public function sermon_includeSermonDetails_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_sermon_options[sermon_show_sermon_details_0]" id="sermon_show_sermon_details_0" value="true" %s>',
-			( isset( $this->sermon_options['sermon_show_sermon_details_0'] ) && $this->sermon_options['sermon_show_sermon_details_0'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_sermon_options[includeSermonDetails]" id="includeSermonDetails" value="true" %s>',
+			( isset( $this->sermon_options['includeSermonDetails'] ) && $this->sermon_options['includeSermonDetails'] === 'true' ) ? 'checked' : ''
 		);
 	}
 
@@ -179,50 +181,42 @@ class SF_Embed_Admin {
 
 	public function profile_section_info() {
 		echo '<p>These settings will be applied when embedding profiles/playlists.</p>';
+		echo '<p><em>Note: It is possible for a profile/playlist URL to change. Use the <code>groupId</code> in your URL to avoid issues.</em></p>';
 	}
 
-	public function show_sermon_details_0_callback() {
+	public function includeSermonDetails_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_profile_options[show_sermon_details_0]" id="show_sermon_details_0" value="true" %s>',
-			( isset( $this->profile_options['show_sermon_details_0'] ) && $this->profile_options['show_sermon_details_0'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_profile_options[includeSermonDetails]" id="includeSermonDetails" value="true" %s>',
+			( isset( $this->profile_options['includeSermonDetails'] ) && $this->profile_options['includeSermonDetails'] === 'true' ) ? 'checked' : ''
 		);
 	}
 
-	public function show_thumbnail_1_callback() {
+	public function includeThumbnail_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_profile_options[show_thumbnail_1]" id="show_thumbnail_1" value="true" %s>',
-			( isset( $this->profile_options['show_thumbnail_1'] ) && $this->profile_options['show_thumbnail_1'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_profile_options[includeThumbnail]" id="includeThumbnail" value="true" %s>',
+			( isset( $this->profile_options['includeThumbnail'] ) && $this->profile_options['includeThumbnail'] === 'true' ) ? 'checked' : ''
 		);
 	}
 
-	public function show_speaker_name_2_callback() {
+	public function includeSpeaker_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_profile_options[show_speaker_name_2]" id="show_speaker_name_2" value="true" %s>',
-			( isset( $this->profile_options['show_speaker_name_2'] ) && $this->profile_options['show_speaker_name_2'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_profile_options[includeSpeaker]" id="includeSpeaker" value="true" %s>',
+			( isset( $this->profile_options['includeSpeaker'] ) && $this->profile_options['includeSpeaker'] === 'true' ) ? 'checked' : ''
 		);
 	}	
 
-	public function show_series_3_callback() {
+	public function includeSeries_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_profile_options[show_series_3]" id="show_series_3" value="true" %s>',
-			( isset( $this->profile_options['show_series_3'] ) && $this->profile_options['show_series_3'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_profile_options[includeSeries]" id="includeSeries" value="true" %s>',
+			( isset( $this->profile_options['includeSeries'] ) && $this->profile_options['includeSeries'] === 'true' ) ? 'checked' : ''
 		);
 	}	
 
-	public function show_date_4_callback() {
+	public function includeDatePresented_callback() {
 		printf(
-			'<input type="checkbox" name="soundfaith_embed_profile_options[show_date_4]" id="show_date_4" value="true" %s>',
-			( isset( $this->profile_options['show_date_4'] ) && $this->profile_options['show_date_4'] === 'true' ) ? 'checked' : ''
+			'<input type="checkbox" name="soundfaith_embed_profile_options[includeDatePresented]" id="includeDatePresented" value="true" %s>',
+			( isset( $this->profile_options['includeDatePresented'] ) && $this->profile_options['includeDatePresented'] === 'true' ) ? 'checked' : ''
 		);
 	}		
 
 }
-// if ( is_admin() )
-	// $soundfaith_embed = new SF_Embed_Admin();
-
-/* 
- * Retrieve this value with:
- * $soundfaith_embed_profile_options = get_option( 'soundfaith_embed_profile_options' ); // Array of All Options
- * $show_sermon_details_0 = $soundfaith_embed_profile_options['show_sermon_details_0']; // Show sermon details
- * $show_thumbnail_1 = $soundfaith_embed_profile_options['show_thumbnail_1']; // Show thumbnail in playlist
- */

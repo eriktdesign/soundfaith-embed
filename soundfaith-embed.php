@@ -3,14 +3,14 @@
 /**
  *
  * @link              http://eriktdesign.com
- * @since             0.2.0
+ * @since             1.0.0
  * @package           SF_Embed
  *
  * @wordpress-plugin
  * Plugin Name:       SoundFaith Embed
  * Plugin URI:        http://eriktdesign.com
  * Description:       Enables SoundFaith.com as an embed provider
- * Version:           0.2.0
+ * Version:           1.0.0
  * Author:            Erik Teichmann
  * Author URI:        http://eriktdesign.com
  * License:           GPL-2.0+
@@ -24,6 +24,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+// Include settings page
 if( ! class_exists( 'SF_Embed_Admin' ) ) {
 	require_once('inc/soundfaith-embed-admin.php');
 }
@@ -31,15 +32,15 @@ if( ! class_exists( 'SF_Embed_Admin' ) ) {
 class SF_Embed {
 
 	// Plugin version
-	public $version = "0.2.0";
+	public $version = "1.0.0";
 
 	public $embed_base = "https://soundfaith.com/embed/";
 
-	public $sermon_options = array( 
+	public $sermon_defaults = array( 
 		'includeSermonDetails' 	=> 'true',
 	);
 
-	public $profile_options = array(
+	public $profile_defaults = array(
 		'includeSermonDetails' 	=> 'false',
 		'includePlaylist' 		=> 'true',
 		'includeThumbnail' 		=> 'true',
@@ -48,32 +49,51 @@ class SF_Embed {
 		'includeDatePresented' 	=> 'true',		
 	);
 
-	public $default_options = array( 
-		's_includeSermonDetails' => 'on',
-		'includeSermonDetails' => 'on',
-		'includeThumbnail' => '',
-		'includeSpeaker' => '',
-		'includeSeries' => '',
-		'includeDatePresented' => '',
-	);
+	protected $sermon_options;
+	protected $profile_options;
 
-	public $sermon_regex = '/soundfaith\.com\/(sermons)\/(\d+)/i';
-	public $profile_regex = '/soundfaith\.com\/(profile)\/(.+)/i';
+	protected $sermon_regex = '/soundfaith\.com\/(sermons)\/(\d+)/i';
+	protected $profile_regex = '/soundfaith\.com\/(profile)\/(.+)/i';
 
 	/**
 	 * Initialize the plugin by adding providers. 
 	 * In the future, options page functionality will be added here.
 	 */
 	public function __construct() {
-		// add_action( 'admin_init', array( $this, 'settings_init' ) );
-		// add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		// Initialize default settings
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+		// Remove options on deactivate
+		register_deactivation_hook( __FILE__, array( $this, 'deactivate') );
+
+		$this->sermon_options = get_option( 'soundfaith_embed_sermon_options' );
+		$this->profile_options = get_option( 'soundfaith_embed_profile_options' );
+
 		add_action( 'init', array( $this, 'settings_init' ) );
 		$this->add_providers();
 		add_action( 'wp_footer', array( $this, 'debug' ) );
 	}
 
 	/**
+	 * Initialize plugin options with defaults
+	 * @return void
+	 */
+	public function activate() {
+		add_option( 'soundfaith_embed_sermon_options', $this->sermon_defaults );
+		add_option( 'soundfaith_embed_profile_options', $this->profile_defaults );
+	}
+
+	/**
+	 * Remove plugin options from database
+	 * @return void
+	 */
+	public function deactivate() {
+		delete_option( 'soundfaith_embed_sermon_options' );
+		delete_option( 'soundfaith_embed_profile_options' );
+	}
+
+	/**
 	 * Register embeds to their handlers
+	 * @return void
 	 */
 	public function add_providers() {
 		wp_embed_register_handler( 'sf_sermon', $this->sermon_regex, array( $this, 'sf_embed' ) );
@@ -110,20 +130,6 @@ class SF_Embed {
 		);
 	}
 
-	public function get_options( $type ) {
-		$options = get_option( 'soundfaith-embed-admin', array() );
-
-		$options = wp_parse_args( $options, $this->default_options );
-
-		if( $type == 'sermon' ) {
-			return array( 'includeSermonDetails' => 'true' );
-		} else {
-			unset( $options['s_includeSermonDetails' ] );
-		}
-
-		return $options;
-	}
-
 	/**
 	 * Generate the embed code for a SoundFaith sermon or profile
 	 * @param  array $matches Regex matches for URL
@@ -133,12 +139,16 @@ class SF_Embed {
 	 * @return string          HTML for iframe embed
 	 */
 	public function sf_embed( $matches, $attr, $url, $rawattr ) {
+		// The first match in the embed regex is the "type", either sermon or profile
 		$type = $matches[1];
+		// The second match is the numerical ID. This might break for profiles, but seems to work currently
 		$id = $matches[2];
 
+		// Using the type and ID, get the embed URL and dimensions for the iframe
 		$embed_url = $this->get_embed_url( $type, $id );
 		$dimensions = $this->get_dimensions( $type );
 
+		// Construct the iframe tag
 		$embed = sprintf(
 			'<iframe frameborder="0" scrolling="no" allowfullscreen src="%s" width="%d" height="%d"></iframe>',
 			$embed_url,
@@ -146,6 +156,7 @@ class SF_Embed {
 			$dimensions['height']
 		);
 
+		// Return completed tag, allow for filtering
 		return apply_filters( 'embed_sf', $embed, $matches, $attr, $url, $rawattr );
 	}
 
@@ -156,9 +167,12 @@ class SF_Embed {
 	 * @return string       URL for iframe src with query args added
 	 */
 	public function get_embed_url( $type, $id ) {
+		// Build the url with base + type + id and slashes
 		$url = trailingslashit( $this->embed_base . $type ) . $id;
 
+		// Return the URL with the query args attached
 		if( "profile" == $type ) {
+			// Profiles need /recent on the end of the URL
 			$url = trailingslashit( $url ) . 'recent';
 			return add_query_arg( $this->profile_options, $url );
 		} else {
@@ -166,16 +180,12 @@ class SF_Embed {
 		}
 	}
 
+	/**
+	 * If we're in admin section, load the settings page class
+	 * @return void
+	 */
 	public function settings_init() {
 		if( is_admin() ) $SF_Embed_Admin = new SF_Embed_Admin();
-	}
-
-	public function debug() {
-		$soundfaith_embed_sermon_options = get_option( 'soundfaith_embed_sermon_options' ); // Array of All Options
-		$soundfaith_embed_profile_options = get_option( 'soundfaith_embed_profile_options' ); // Array of All Options
-		echo '<h2>Debug</h2>';
-		print_r( $soundfaith_embed_sermon_options );
-		print_r( $soundfaith_embed_profile_options );
 	}
 
 }
