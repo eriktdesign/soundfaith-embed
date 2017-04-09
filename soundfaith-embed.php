@@ -24,8 +24,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-if( ! class_exists( 'RationalOptionPages' ) ) {
-	require_once('inc/RationalOptionPages.php');
+if( ! class_exists( 'SF_Embed_Admin' ) ) {
+	require_once('inc/soundfaith-embed-admin.php');
 }
 
 class SF_Embed {
@@ -167,73 +167,15 @@ class SF_Embed {
 	}
 
 	public function settings_init() {
-		$pages = array(
-			'soundfaith-embed-admin'	=> array(
-				'parent_slug' => 'options-general.php',
-				'page_title'	=> __( 'SoundFaith Options', 'sf-embed' ),
-				'sections'		=> array(
-					'sermon'	=> array(
-						'title'			=> __( 'Sermon Embeds', 'sf-embed' ),
-						'id'			=> 'sermon',
-						'text'			=> __( 'Settings for embedding individual sermons' ),
-						'fields'		=> array(
-							'details'		=> array(
-								'title'			=> __( 'Show sermon details', 'sf-embed' ),
-								'id'			=> 's_includeSermonDetails',
-								'type'			=> 'checkbox',
-								'checked'		=> true,
-								// 'text'			=> __( 'Show sermon details under embed', 'sf-embed' ),
-							),
-						),
-					),
-					'profile'	=> array(
-						'title'			=> __( 'Profile Embeds', 'sf-embed' ),
-						'id'			=> 'profile',
-						'text'			=> __( 'Settings for embedding profile pages/playlists' ),
-						'fields'		=> array(
-							'details'		=> array(
-								'title'			=> __( 'Show sermon details', 'sf-embed' ),
-								'type'			=> 'checkbox',
-								'checked'		=> true,
-								'id'			=> 'includeSermonDetails',
-								// 'text'			=> __( 'Show sermon details under embed', 'sf-embed' ),
-							),
-							'thumb'		=> array(
-								'title'			=> __( 'Show thumbnail in playlist', 'sf-embed' ),
-								'type'			=> 'checkbox',
-								'id'			=> 'includeThumbnail',
-								// 'text'			=> __( 'Display thumbnail for each sermon in playlist', 'sf-embed' ),
-							),
-							'speaker'		=> array(
-								'title'			=> __( 'Show speaker name in playlist', 'sf-embed' ),
-								'type'			=> 'checkbox',
-								'id'			=> 'includeSpeaker',
-								// 'text'			=> __( 'Show speaker name for each sermon in playlist', 'sf-embed' ),
-							),
-							'series'		=> array(
-								'title'			=> __( 'Show series title in playlist', 'sf-embed' ),
-								'type'			=> 'checkbox',
-								'id'			=> 'includeSeries',
-								// 'text'			=> __( 'Show series title for each sermon in playlist', 'sf-embed' ),
-							),
-							'date'		=> array(
-								'title'			=> __( 'Show sermon date in playlist', 'sf-embed' ),
-								'type'			=> 'checkbox',
-								'id'			=> 'includeDatePresented',
-								// 'text'			=> __( 'Show the date for each sermon in playlist', 'sf-embed' ),
-							),
-						),
-					),
-
-				),
-			),
-		);
-
-		$option_page = new RationalOptionPages( $pages );
+		if( is_admin() ) $SF_Embed_Admin = new SF_Embed_Admin();
 	}
 
 	public function debug() {
-		print_r( $this->get_options( 'profile' ) );
+		$soundfaith_embed_sermon_options = get_option( 'soundfaith_embed_sermon_options' ); // Array of All Options
+		$soundfaith_embed_profile_options = get_option( 'soundfaith_embed_profile_options' ); // Array of All Options
+		echo '<h2>Debug</h2>';
+		print_r( $soundfaith_embed_sermon_options );
+		print_r( $soundfaith_embed_profile_options );
 	}
 
 }
